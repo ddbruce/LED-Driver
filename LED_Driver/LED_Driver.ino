@@ -329,6 +329,7 @@ bP = true;
 */
 void setPWM(int channel, uint16_t brightness)
 {
+  channel = (channel >= 5) ? channel += 1 : channel;
   Wire.beginTransmission(PWM_ADDR);
   Wire.write(LED0_ON_L+4*channel);
 Wire.write(0x00); //turn the LED on at 0
@@ -364,4 +365,3 @@ float readPot()
 potValue = analogRead(A0); // save value from potentiometer
 return (float)potValue/1023;   
 }
-
