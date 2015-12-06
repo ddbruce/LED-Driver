@@ -50,16 +50,6 @@ volatile long modeSetTime = 0;
 
 void setup()
 {
-// begin configure seven seg driver
-  pinMode(A1, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
-  pinMode(A2, OUTPUT);
-// end configure seven seg driver
-
-// configure pushbutton
-  pinMode(2, INPUT);
-attachInterrupt(0,checkMode,FALLING); // setup interrupt
 
 // configure serial and i2c communication
 Serial.begin(9600);
@@ -67,115 +57,29 @@ Wire.begin();
 
 // configure PWM chip
 setConfiguration();
+
+  
 }
 
 void loop()
 {  
-//checkMode();
-bP = false; // clear ISR flag
-if ((millis() - modeSetTime) > 2000)
-{ 
-setSevenSeg(10); // disable seven seg after 2000 milliseconds
-sevSegOff = true;
-}
   
   setPWM(0,4095); //red
-  setPWM(1,4095); //red
+  setPWM(2,4095); //red
+  setPWM(4,4095); //red
   
-  setPWM(2,4095); setPWM(7,4095); setPWM(12,4095); //white
   
-  setPWM(14,4095); //blue
-
-
-/*
-* function to control the seven seg display, display value
-*/
-void setSevenSeg (int value)
-{
-  switch(value)
-  {
-    case 0:
-    digitalWrite(A1, LOW);
-    digitalWrite(6, LOW);
-    digitalWrite(7, LOW);
-    digitalWrite(A2, LOW);
-    break;
-    case 1:
-    digitalWrite(A1, HIGH);
-    digitalWrite(6, LOW);
-    digitalWrite(7, LOW);
-    digitalWrite(A2, LOW);
-    break;
-    case 2:
-    digitalWrite(A1, LOW);
-    digitalWrite(6, HIGH);
-    digitalWrite(7, LOW);
-    digitalWrite(A2, LOW);
-    break;
-    case 3:
-    digitalWrite(A1, HIGH);
-    digitalWrite(6, HIGH);
-    digitalWrite(7, LOW);
-    digitalWrite(A2, LOW);
-    break;
-    case 4:
-    digitalWrite(A1, LOW);
-    digitalWrite(6, LOW);
-    digitalWrite(7, HIGH);
-    digitalWrite(A2, LOW);
-    break;
-    case 5:
-    digitalWrite(A1, HIGH);
-    digitalWrite(6, LOW);
-    digitalWrite(7, HIGH);
-    digitalWrite(A2, LOW);
-    break;
-    case 6:
-    digitalWrite(A1, LOW);
-    digitalWrite(6, HIGH);
-    digitalWrite(7, HIGH);
-    digitalWrite(A2, LOW);
-    break;
-    case 7:
-    digitalWrite(A1, HIGH);
-    digitalWrite(6, HIGH);
-    digitalWrite(7, HIGH);
-    digitalWrite(A2, LOW);
-    break;
-    case 8:
-    digitalWrite(A1, LOW);
-    digitalWrite(6, LOW);
-    digitalWrite(7, LOW);
-    digitalWrite(A2, HIGH);
-    break;
-    case 9:
-    digitalWrite(A1, HIGH);
-    digitalWrite(6, LOW);
-    digitalWrite(7, LOW);
-    digitalWrite(A2, HIGH);
-    break;
-default: // blank screen for numbers not in 0-9
-digitalWrite(A1, HIGH);
-digitalWrite(6, HIGH);
-digitalWrite(7, HIGH);
-digitalWrite(A2, HIGH);
-}
+  setPWM(1,4095); setPWM(6,4095); setPWM(11,4095); //white
+  setPWM(3,4095); setPWM(8,4095); setPWM(13,4095); //white
+  
+  
+  
 }
 
 /*
 * increments mode and displays value on seven seg, triggered by ISR
 */
 
-void checkMode()
-{
-  mode++;
-modeSetTime = millis(); // set time mode was set so seven seg can be turned off after
-                            // duration
-if (mode>3) mode = 0;
-setSevenSeg(mode); //set seven seg to mode number
-sevSegOff = false;
-bP = true;
-}
 
 /*
 * setPWM brightness on channel given over I2C
@@ -185,8 +89,8 @@ void setPWM(int channel, uint16_t brightness)
   channel = (channel >= 5) ? channel += 1 : channel;
   Wire.beginTransmission(PWM_ADDR);
   Wire.write(LED0_ON_L+4*channel);
-Wire.write(0x00); //turn the LED on at 0
-Wire.write(0x00); //turn the LED on at 0
+  Wire.write(0x00); //turn the LED on at 0
+  Wire.write(0x00); //turn the LED on at 0
 
 //turn the LED off when it hits this value (out of 4095)
 Wire.write(brightness); //first four LSB
